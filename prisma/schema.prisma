@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+    address String @db.VarChar @id
+}
+
+model Asset {
+  id       String   @id @db.VarChar
+  price      Decimal  @db.Decimal(90, 0)
+  symbol     String   @db.VarChar(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  timeline   DateTime  @db.Timestamptz(3)
+
+  @@map("asset")
+}
