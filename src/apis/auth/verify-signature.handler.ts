@@ -12,7 +12,7 @@ const handler: FastifyPluginAsyncZod = async self => {
 		"/verify-signature",
 		{
 			schema: {
-				tags: ["User"],
+				tags: ["Auth"],
 				body: z.object({
 					address: address(),
 					message: z.string().min(1),
@@ -37,7 +37,7 @@ const handler: FastifyPluginAsyncZod = async self => {
 
 			if (!isValid) throw reply.unauthorized()
 
-			const user = await UserRepository.createIfNotExist(address)
+			await UserRepository.createIfNotExist(address)
 
 			const payload = {
 				address

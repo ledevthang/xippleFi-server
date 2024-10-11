@@ -15,6 +15,8 @@ import {
 } from "fastify-type-provider-zod"
 import type { Address } from "viem"
 import { prisma } from "./infrastrutures/database.js"
+import fastifyJwt from "@fastify/jwt"
+import { ACCESS_TOKEN_SECRET } from "./shared/env.js"
 
 function main() {
 	const __filename = fileURLToPath(import.meta.url)
@@ -54,6 +56,9 @@ function main() {
 		)
 		.register(cors)
 		.register(fastifySensible)
+		.register(fastifyJwt, {
+			secret: ACCESS_TOKEN_SECRET
+		})
 		.register(autoLoad, {
 			dir: join(__dirname, "plugins"),
 			matchFilter: path => path.startsWith("/_"),
