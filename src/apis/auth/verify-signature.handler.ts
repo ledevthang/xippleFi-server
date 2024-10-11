@@ -1,4 +1,3 @@
-import type { FastifyReply } from "fastify"
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod"
 import { type Address, verifyMessage } from "viem"
 import z from "zod"

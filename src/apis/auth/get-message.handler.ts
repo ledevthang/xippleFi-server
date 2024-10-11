@@ -15,7 +15,7 @@ const handler: FastifyPluginAsyncZod = async self => {
 		"/message",
 		{
 			schema: {
-				tags: ["User"],
+				tags: ["Auth"],
 				querystring
 			}
 		},

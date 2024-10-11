@@ -8,15 +8,19 @@ datasource db {
 }
 
 model User {
-    address String @db.VarChar @id
+  address String @id @db.VarChar
+
+  @@map("user")
 }
 
 model Asset {
-  id       String   @id @db.VarChar
-  price      Decimal  @db.Decimal(90, 0)
-  symbol     String   @db.VarChar(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(3)
-  timeline   DateTime  @db.Timestamptz(3)
+  id            String   @id @db.VarChar
+  realTimePrice Decimal  @map("real_time_price") @db.Decimal(90, 0)
+  price         Decimal  @db.Decimal(90, 0)
+  symbol        String   @db.VarChar(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  timeline      DateTime @db.Timestamptz(3)
+  apy           Float
 
   @@map("asset")
 }

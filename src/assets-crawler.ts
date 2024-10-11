@@ -2,7 +2,8 @@ import { Decimal } from "@prisma/client/runtime/library"
 import { DateTime } from "luxon"
 import { parseEther } from "viem"
 import { WebSocket } from "ws"
-import { prisma } from "./infrastrutures/database.js"
+import { findStaticAssetById } from "./helpers/find-static-asset.js"
+import { AssetRepository } from "./repositories/asset.repository.js"
 import { Asset } from "./shared/constants.js"
 
 async function main() {
@@ -31,26 +32,20 @@ async function main() {
 }
 
 const handleAsset = async (id: Asset, price: Decimal) => {
-	const asset = await prisma.asset.findUnique({
-		where: {
-			id
-		}
-	})
+	const asset = await AssetRepository.findById(id)
 
-	const { symbol, heartbeat, threshold } = Object.values(Asset).find(
-		asset => asset.id === id
-	)!
+	const { symbol, heartbeat, threshold, apy } = findStaticAssetById(id)
 
 	if (!asset) {
-		const timeline = DateTime.now().plus({ seconds: heartbeat }).toJSDate()
+		const timeline = DateTime.now().plus({ seconds: heartbeat })
 
-		await prisma.asset.create({
-			data: {
-				id,
-				price,
-				symbol,
-				timeline
-			}
+		await AssetRepository.create({
+			id,
+			price,
+			symbol,
+			timeline,
+			apy,
+			realTimePrice: price
 		})
 
 		return
@@ -61,15 +56,11 @@ const handleAsset = async (id: Asset, price: Decimal) => {
 	if (change.lessThan(threshold)) return
 
 	//need update to contract here
-	await prisma.asset.update({
-		where: {
-			id
-		},
-		data: {
-			price,
-			timeline: DateTime.now().plus({ seconds: heartbeat }).toJSDate()
-		}
-	})
+	await AssetRepository.updatePriceAndTimeline(
+		id,
+		price,
+		DateTime.now().plus({ seconds: heartbeat })
+	)
 }
 
 main()
