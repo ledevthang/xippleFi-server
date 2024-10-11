@@ -15,8 +15,6 @@
 		"format": "biome format ./src --write",
 		"clean": "biome check ./src --write",
 		"preinstall": "npx only-allow pnpm",
-		"prepare": "husky",
-		"commitlint": "commitlint --edit",
 		"check": "pnpm type-check && pnpm format && pnpm lint",
 		"build:tsc": "rm -rf dist && tsc && tsc-alias"
 	},
@@ -41,8 +39,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.3",
-		"@commitlint/cli": "^19.5.0",
-		"@commitlint/config-conventional": "^19.5.0",
 		"@swc/cli": "^0.4.0",
 		"@swc/core": "^1.7.26",
 		"@types/luxon": "^3.4.2",
