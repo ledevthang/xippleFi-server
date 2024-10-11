@@ -42,7 +42,7 @@ const create = (params: CreateAssetParams) =>
 		}
 	})
 
-const updatePriceAndTimeline = (
+const updateAllPriceAndTimeline = (
 	id: Asset,
 	price: Decimal,
 	timeline: DateTime
@@ -52,8 +52,19 @@ const updatePriceAndTimeline = (
 			id
 		},
 		data: {
+			realTimePrice: price,
 			price,
 			timeline: timeline.toJSDate()
+		}
+	})
+
+const updateRealtimePrice = (id: Asset, price: Decimal) =>
+	prisma.asset.update({
+		where: {
+			id
+		},
+		data: {
+			realTimePrice: price
 		}
 	})
 
@@ -62,5 +73,6 @@ export const AssetRepository = {
 	findById,
 	findAll,
 	findAllTimelineReached,
-	updatePriceAndTimeline
+	updatePriceAndTimeline: updateAllPriceAndTimeline,
+	updateRealtimePrice
 }
