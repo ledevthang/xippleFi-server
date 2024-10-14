@@ -1,9 +1,7 @@
 import { DateTime } from "luxon"
-import type { Address } from "viem"
 import { writeAssetPrice } from "./contracts/services.js"
-import { findStaticAssetById } from "./helpers/find-static.js"
 import { AssetRepository } from "./repositories/asset.repository.js"
-import type { Asset } from "./shared/constants.js"
+import { ASSET, type Asset } from "./shared/constants.js"
 import { sleep } from "./utils/sleep.js"
 
 async function main() {
@@ -13,12 +11,12 @@ async function main() {
 		const assets = await AssetRepository.findAllTimelineReached()
 
 		for (const asset of assets) {
-			const { heartbeat } = findStaticAssetById(asset.id as Asset)
+			const { heartbeat, oracleContract, id } = ASSET[asset.id as Asset]
 
-			await writeAssetPrice(asset.address as Address, asset.realTimePrice)
+			await writeAssetPrice(oracleContract, asset.realTimePrice)
 
 			await AssetRepository.updateAllPriceAndTimeline(
-				asset.id as Asset,
+				id,
 				asset.realTimePrice,
 				DateTime.now().plus({ seconds: heartbeat })
 			)

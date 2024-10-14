@@ -12,9 +12,9 @@ export const writeAssetPrice = async (contract: Address, price: Decimal) => {
 		chain: xrpChain
 	})
 
-	const { logs } = await rpcClient.waitForTransactionReceipt({ hash })
-
-	const log = logs[0]
+	const {
+		logs: [log]
+	} = await rpcClient.waitForTransactionReceipt({ hash })
 
 	if (!log) throw new Error(`Can not find log event round from hash ${hash}`)
 

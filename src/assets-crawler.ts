@@ -3,10 +3,6 @@ import { DateTime } from "luxon"
 import { parseEther } from "viem"
 import { WebSocket } from "ws"
 import { writeAssetPrice } from "./contracts/services.js"
-import {
-	findStaticAssetById,
-	findStaticAssetOracleContract
-} from "./helpers/find-static.js"
 import { AssetRepository } from "./repositories/asset.repository.js"
 import { ASSET, type Asset } from "./shared/constants.js"
 
@@ -38,9 +34,8 @@ async function main() {
 const handleAsset = async (id: Asset, price: Decimal) => {
 	const asset = await AssetRepository.findById(id)
 
-	const { symbol, heartbeat, threshold, apy } = findStaticAssetById(id)
-
-	const address = findStaticAssetOracleContract(id)
+	const { symbol, heartbeat, threshold, apy, address, oracleContract } =
+		ASSET[id]
 
 	if (!asset) {
 		const timeline = DateTime.now().plus({ seconds: heartbeat })
@@ -67,7 +62,7 @@ const handleAsset = async (id: Asset, price: Decimal) => {
 
 	//need update to contract here
 
-	await writeAssetPrice(address, price)
+	await writeAssetPrice(oracleContract, price)
 
 	await AssetRepository.updateAllPriceAndTimeline(
 		id,
