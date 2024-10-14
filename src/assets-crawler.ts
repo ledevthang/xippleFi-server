@@ -2,12 +2,16 @@ import { Decimal } from "@prisma/client/runtime/library"
 import { DateTime } from "luxon"
 import { parseEther } from "viem"
 import { WebSocket } from "ws"
-import { findStaticAssetById } from "./helpers/find-static-asset.js"
+import { writeAssetPrice } from "./contracts/services.js"
+import {
+	findStaticAssetById,
+	findStaticAssetOracleContract
+} from "./helpers/find-static.js"
 import { AssetRepository } from "./repositories/asset.repository.js"
-import { Asset } from "./shared/constants.js"
+import { ASSET, type Asset } from "./shared/constants.js"
 
 async function main() {
-	const assets = Object.values(Asset)
+	const assets = Object.values(ASSET)
 		.map(asset => asset.id)
 		.join(",")
 
@@ -36,6 +40,8 @@ const handleAsset = async (id: Asset, price: Decimal) => {
 
 	const { symbol, heartbeat, threshold, apy } = findStaticAssetById(id)
 
+	const address = findStaticAssetOracleContract(id)
+
 	if (!asset) {
 		const timeline = DateTime.now().plus({ seconds: heartbeat })
 
@@ -45,7 +51,8 @@ const handleAsset = async (id: Asset, price: Decimal) => {
 			symbol,
 			timeline,
 			apy,
-			realTimePrice: price
+			realTimePrice: price,
+			address
 		})
 
 		return
@@ -59,11 +66,16 @@ const handleAsset = async (id: Asset, price: Decimal) => {
 	}
 
 	//need update to contract here
-	await AssetRepository.updatePriceAndTimeline(
+
+	await writeAssetPrice(address, price)
+
+	await AssetRepository.updateAllPriceAndTimeline(
 		id,
 		price,
 		DateTime.now().plus({ seconds: heartbeat })
 	)
+
+	console.log("done update price asset: ", asset.symbol)
 }
 
 main()

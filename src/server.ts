@@ -3,6 +3,7 @@ import cors from "@fastify/cors"
 import "@fastify/jwt"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
+import fastifyJwt from "@fastify/jwt"
 import fastifySensible from "@fastify/sensible"
 import type { SwaggerOptions } from "@fastify/swagger"
 import fastifySwagger from "@fastify/swagger"
@@ -15,7 +16,6 @@ import {
 } from "fastify-type-provider-zod"
 import type { Address } from "viem"
 import { prisma } from "./infrastrutures/database.js"
-import fastifyJwt from "@fastify/jwt"
 import { ACCESS_TOKEN_SECRET } from "./shared/env.js"
 
 function main() {

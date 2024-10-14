@@ -1,5 +1,7 @@
 import { DateTime } from "luxon"
-import { findStaticAssetById } from "./helpers/find-static-asset.js"
+import type { Address } from "viem"
+import { writeAssetPrice } from "./contracts/services.js"
+import { findStaticAssetById } from "./helpers/find-static.js"
 import { AssetRepository } from "./repositories/asset.repository.js"
 import type { Asset } from "./shared/constants.js"
 import { sleep } from "./utils/sleep.js"
@@ -13,12 +15,15 @@ async function main() {
 		for (const asset of assets) {
 			const { heartbeat } = findStaticAssetById(asset.id as Asset)
 
-			// need upadate price to blockchain here
-			await AssetRepository.updatePriceAndTimeline(
+			await writeAssetPrice(asset.address as Address, asset.realTimePrice)
+
+			await AssetRepository.updateAllPriceAndTimeline(
 				asset.id as Asset,
 				asset.realTimePrice,
 				DateTime.now().plus({ seconds: heartbeat })
 			)
+
+			console.log("done heartbeat on asset: ", asset.symbol)
 		}
 
 		await sleep(1000)

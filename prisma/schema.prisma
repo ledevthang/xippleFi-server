@@ -15,6 +15,7 @@ model User {
 
 model Asset {
   id            String   @id @db.VarChar
+  address       String   @unique
   realTimePrice Decimal  @map("real_time_price") @db.Decimal(90, 0)
   price         Decimal  @db.Decimal(90, 0)
   symbol        String   @db.VarChar(6)

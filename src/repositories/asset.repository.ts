@@ -2,6 +2,7 @@ import type { Decimal } from "@prisma/client/runtime/library"
 import { prisma } from "@root/infrastrutures/database.js"
 import type { Asset } from "@root/shared/constants.js"
 import { DateTime } from "luxon"
+import type { Address } from "viem"
 
 type CreateAssetParams = {
 	id: Asset
@@ -10,6 +11,7 @@ type CreateAssetParams = {
 	symbol: string
 	timeline: DateTime
 	apy: number
+	address: Address
 }
 
 const findAll = () => prisma.asset.findMany()
@@ -38,7 +40,8 @@ const create = (params: CreateAssetParams) =>
 			price: params.price,
 			symbol: params.symbol,
 			timeline: params.timeline.toJSDate(),
-			realTimePrice: params.realTimePrice
+			realTimePrice: params.realTimePrice,
+			address: params.address
 		}
 	})
 
@@ -73,6 +76,6 @@ export const AssetRepository = {
 	findById,
 	findAll,
 	findAllTimelineReached,
-	updatePriceAndTimeline: updateAllPriceAndTimeline,
+	updateAllPriceAndTimeline,
 	updateRealtimePrice
 }

@@ -6,7 +6,7 @@ export type Asset =
 	| "binance-coin"
 	| "tether"
 
-export const Asset = {
+export const ASSET = {
 	Btc: {
 		id: "bitcoin",
 		symbol: "BTC",
