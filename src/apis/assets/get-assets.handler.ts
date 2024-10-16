@@ -3,7 +3,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod"
 
 const handler: FastifyPluginAsyncZod = async self => {
 	self.get(
-		"/",
+		"",
 		{
 			schema: {
 				tags: ["Assets"]

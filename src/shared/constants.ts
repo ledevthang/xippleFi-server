@@ -41,7 +41,7 @@ export const ASSET = {
 		threshold: 0.2,
 		apy: 0.5,
 		oracleContract: "0x7D2e4B489a9058E728Bd9B63b23251A29f0Ed246",
-		address: "0x7D2e4B489a9058E728Bd9B63b23251A29f0Ed246"
+		address: "0x880e0C475DeD4214De466891c5FBD61747b67083"
 	},
 	"binance-coin": {
 		id: "binance-coin",
