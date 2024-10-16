@@ -52,14 +52,6 @@ function getLatestEpochAndRoundAsBytes32(
 	epoch: number,
 	round: number
 ): `0x${string}` {
-	// Validate the inputs
-	if (epoch < 0 || epoch > 0xffffffff) {
-		throw new Error("Epoch must be a uint32 (0 to 4294967295).")
-	}
-	if (round < 0 || round > 0xff) {
-		throw new Error("Round must be a uint8 (0 to 255).")
-	}
-
 	// Combine epoch and round into a single uint40 value
 	const uint40Value = (epoch << 8) | round // Shift epoch left by 8 bits and OR with round
 
