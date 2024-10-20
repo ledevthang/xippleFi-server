@@ -6,7 +6,7 @@ use crate::{
 };
 use alloy::primitives::{eip191_hash_message, Address};
 use axum::{extract::Query, Json};
-use deadpool_redis::redis::AsyncCommands;
+use deadpool_redis::redis::{AsyncCommands, SetExpiry, SetOptions};
 use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 use shared::user_sign_message_key;
@@ -42,8 +42,10 @@ pub async fn get_message(
 
     let message = eip191_hash_message(message).to_string();
 
+    let set_option = SetOptions::default().with_expiration(SetExpiry::EX(300));
+
     redis
-        .set_ex(user_sign_message_key(&address), &message, 300) //5mins
+        .set_options(user_sign_message_key(&address), &message, set_option) //5mins
         .await?;
 
     let response = GetMessageResponse { message };
