@@ -15,7 +15,6 @@ use alloy::{
 };
 
 sol!(
-    #[allow(missing_docs)]
     #[sol(rpc)]
     ORACLE,
     "src/abis/oracle.abi.json"

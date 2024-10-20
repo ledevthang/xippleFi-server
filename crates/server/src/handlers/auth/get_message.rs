@@ -42,7 +42,9 @@ pub async fn get_message(
 
     let message = eip191_hash_message(message).to_string();
 
-    redis.set(user_sign_message_key(&address), &message).await?;
+    redis
+        .set_ex(user_sign_message_key(&address), &message, 300) //5mins
+        .await?;
 
     let response = GetMessageResponse { message };
 
