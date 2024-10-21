@@ -65,8 +65,8 @@ pub const ASSETS: [AssetConfig; 6] = [
         heartbeat: 86400, //24h
         threshhold: 0.5,
         apy: 0.5,
-        oracle_contract: address!("50E67748dBdb608bE5b85d97b0Da72313f7Faf4f"),
         address: address!("21fa8610CBD3a1a45bCB1DbE933052EBF9e3dd52"),
+        oracle_contract: address!("50E67748dBdb608bE5b85d97b0Da72313f7Faf4f"),
     },
     AssetConfig {
         id: Asset::TRON,
