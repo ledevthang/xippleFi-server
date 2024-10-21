@@ -1,58 +1,12 @@
 {
-	"name": "xipple-fi-server",
-	"version": "1.0.0",
-	"private": true,
-	"license": "UNLICENSED",
-	"keywords": [],
-	"type": "module",
-	"scripts": {
-		"release": "tsc --noEmit && rm -rf dist && swc --strip-leading-paths -d dist src",
-		"start": "node --env-file=./.env.local dist/bin/server.js",
-		"dev": "nodemon",
-		"type-check": "tsc --noEmit",
-		"lint": "biome lint --error-on-warnings ./src",
-		"lint:fix": "biome lint ./src --write",
-		"format": "biome format ./src --write",
-		"clean": "biome check ./src --write",
-		"preinstall": "npx only-allow pnpm",
-		"check": "pnpm type-check && pnpm format && pnpm lint",
-		"build:tsc": "rm -rf dist && tsc && tsc-alias"
-	},
-	"dependencies": {
-		"@fastify/autoload": "^6.0.2",
-		"@fastify/cors": "^10.0.1",
-		"@fastify/jwt": "^9.0.1",
-		"@fastify/sensible": "^6.0.1",
-		"@fastify/swagger": "^9.1.0",
-		"@fastify/swagger-ui": "^5.0.1",
-		"@prisma/client": "5.20.0",
-		"axios": "^1.7.7",
-		"fastify": "^5.0.0",
-		"fastify-plugin": "^5.0.1",
-		"fastify-type-provider-zod": "^4.0.2",
-		"ioredis": "^5.4.1",
-		"luxon": "^3.5.0",
-		"randomstring": "^1.3.0",
-		"viem": "^2.21.21",
-		"ws": "^8.18.0",
-		"zod": "^3.23.8"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^1.9.3",
-		"@swc/cli": "^0.4.0",
-		"@swc/core": "^1.7.26",
-		"@types/luxon": "^3.4.2",
-		"@types/node": "^22.7.5",
-		"@types/randomstring": "^1.3.0",
-		"@types/ws": "^8.5.12",
-		"nodemon": "^3.1.7",
-		"prisma": "5.20.0",
-		"tsc-alias": "^1.8.10",
-		"tsconfig-paths": "^4.2.0",
-		"typescript": "^5.6.3"
-	},
-	"engines": {
-		"node": ">=20.13.0",
-		"pnpm": ">=9"
-	}
+  "scripts": {
+    "seagen": "sea generate entity -o _generated_ --with-serde serialize --model-extra-attributes 'serde(rename_all = \"camelCase\")'",
+    "prisma": "prisma"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "prisma": "^5.17.0"
+  }
 }

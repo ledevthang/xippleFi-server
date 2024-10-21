@@ -1,2 +1,1 @@
-# xippleFi-server
-xippleFi-server
+The small, high performace and blazing fast 🗲 Xipple Fi http server and oracle system.
