@@ -10,6 +10,7 @@ use axum::{
 };
 use extractors::states::AppState;
 use handlers::{assets::*, auth::*, users::*};
+use tower_http::cors::CorsLayer;
 use tracing_subscriber::EnvFilter;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -48,6 +49,7 @@ async fn main() {
         .merge(auth_router)
         .merge(user_router)
         .merge(assets_router)
+        .layer(CorsLayer::permissive())
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();

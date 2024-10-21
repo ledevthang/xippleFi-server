@@ -23,6 +23,7 @@ dotenv = { workspace = true }
 serde_with = { workspace = true }
 alloy = { workspace = true }
 rand = { workspace = true }
+tower-http = { workspace = true }
 
 contracts = { path = "../contracts" }
 database = { path = "../database" }
