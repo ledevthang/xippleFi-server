@@ -10,7 +10,7 @@ use utoipa::ToSchema;
 #[utoipa::path(
     tag = "Assets",
     get,
-    path = "/api/assets",
+    path = "/assets",
     responses(
         (status = 200, body = GetAssetsResponse)
     )

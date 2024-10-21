@@ -21,7 +21,7 @@ pub struct GetMessageQuery {
 #[utoipa::path(
     tag = "Auth",
     get,
-    path = "/api/auth/message",
+    path = "/auth/message",
     params(GetMessageQuery),
     responses(
         (status = 200, body = GetMessageResponse)

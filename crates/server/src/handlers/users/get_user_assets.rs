@@ -9,7 +9,7 @@ use crate::{
     security(
         ("BearerAuth" = []),
     ),
-    path = "/api/user/assets",
+    path = "/user/assets",
     responses(
         (status = 200, body = ())
     )

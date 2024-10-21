@@ -33,20 +33,18 @@ async fn main() {
         .expect("fail to init state");
 
     let assets_router = Router::new()
-        .route("/api/assets/:asset_id", get(get_asset))
-        .route("/api/assets", get(get_assets));
+        .route("/assets/:asset_id", get(get_asset))
+        .route("/assets", get(get_assets));
 
     let auth_router = Router::new()
-        .route("/api/auth/message", get(get_message))
-        .route("/api/auth/verify-signature", post(verify_signature));
+        .route("/auth/message", get(get_message))
+        .route("/auth/verify-signature", post(verify_signature));
 
-    let user_router = Router::new().route("/api/user/assets", get(get_user_assets));
+    let user_router = Router::new().route("/user/assets", get(get_user_assets));
 
     let app = Router::new()
-        .route("/api", get(|| async { "hello Xipple !" }))
-        .merge(
-            SwaggerUi::new("/api/docs").url("/api-docs/openapi.json", openapi::ApiDoc::openapi()),
-        )
+        .route("/", get(|| async { "hello Xipple !" }))
+        .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", openapi::ApiDoc::openapi()))
         .merge(auth_router)
         .merge(user_router)
         .merge(assets_router)

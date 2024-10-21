@@ -17,7 +17,7 @@ pub struct GetAssetParams {
 #[utoipa::path(
     tag = "Assets",
     get,
-    path = "/api/assets/{asset_id}",
+    path = "/assets/{asset_id}",
     params(GetAssetParams),
     responses(
         (status = 200, body = GetAssetResponse)

@@ -27,7 +27,7 @@ pub struct VerifySignaturePayload {
 #[utoipa::path(
     tag = "Auth",
     post,
-    path = "/api/auth/verify-signature",
+    path = "/auth/verify-signature",
     request_body = VerifySignaturePayload,
     responses(
         (status = 200, body = VerifySignatureResponse)

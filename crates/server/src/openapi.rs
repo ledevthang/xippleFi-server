@@ -16,8 +16,7 @@ use utoipa::{
     info(
         title = "XippleFi OpenApi",
         version = "1.0.0",
-        license (name = "MIT", url = ""),
-        description = "🦀 High performance XippleFi http server",
+        description = "🦀 The small, blazing fast, high performance XippleFi http server",
         contact (name = "goni098", url = "https://github.com/goni098")
     ),
     paths(
@@ -29,21 +28,20 @@ use utoipa::{
     ),
     components(
         schemas(
-        // query
-        // GetAssetParams,
-        // body
-        VerifySignaturePayload,
-        // responses
-        AssetModel,
-        GetAssetResponse,
-        GetAssetsResponse,
-        GetMessageResponse,
-        VerifySignatureResponse,
-        // custom types
-        DateTimeWithTimeZone,
-        Decimal,
-        // enums
-        Asset
+            // query
+            // body
+            VerifySignaturePayload,
+            // responses
+            AssetModel,
+            GetAssetResponse,
+            GetAssetsResponse,
+            GetMessageResponse,
+            VerifySignatureResponse,
+            // custom types
+            DateTimeWithTimeZone,
+            Decimal,
+            // enums
+            Asset
         ),
         responses()
     ),

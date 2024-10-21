@@ -40,7 +40,7 @@ jobs:
     needs: release
     steps:
       - name: Deploy on server
-        uses: appleboy/ssh-action@v0.1.4
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
