@@ -34,7 +34,6 @@ jobs:
             prisma/schema.prisma
             "
           target: ~/xipple-fi
-          strip_components: 3
 
   start:
     runs-on: ubuntu-latest
