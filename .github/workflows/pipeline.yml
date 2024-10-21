@@ -29,12 +29,12 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           source: "
-                target/release/server,
-                target/release/oracle,
-                ecosystem.config.js
+            target/release/server,
+            target/release/oracle,
+            prisma/schema.prisma
             "
           target: ~/xipple-fi
-          strip_components: 2
+          strip_components: 3
 
   start:
     runs-on: ubuntu-latest
