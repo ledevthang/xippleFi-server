@@ -53,7 +53,7 @@ const handleAsset = async (id: Asset, price: Decimal) => {
 		return
 	}
 
-	const change = Decimal.abs(price.minus(asset.price)).div(price)
+	const change = Decimal.abs(price.minus(asset.price)).div(price).div(100)
 
 	if (change.lessThan(threshold)) {
 		await AssetRepository.updateRealtimePrice(id, price)
