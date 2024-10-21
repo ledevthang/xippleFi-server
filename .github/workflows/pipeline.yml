@@ -31,6 +31,7 @@ jobs:
           source: "
                 target/release/server,
                 target/release/oracle,
+                ecosystem.config.js
             "
           target: ~/xipple-fi
           strip_components: 2

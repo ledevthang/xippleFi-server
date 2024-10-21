@@ -27,6 +27,7 @@ pub struct GetMessageQuery {
         (status = 200, body = GetMessageResponse)
     )
 )]
+#[allow(dependency_on_unit_never_type_fallback)]
 pub async fn get_message(
     Query(GetMessageQuery { address }): Query<GetMessageQuery>,
     Redis(mut redis): Redis,
@@ -42,10 +43,11 @@ pub async fn get_message(
 
     let message = eip191_hash_message(message).to_string();
 
+    let key = user_sign_message_key(&address);
     let set_option = SetOptions::default().with_expiration(SetExpiry::EX(300));
 
     redis
-        .set_options(user_sign_message_key(&address), &message, set_option) //5mins
+        .set_options(key, &message, set_option) //5mins
         .await?;
 
     let response = GetMessageResponse { message };

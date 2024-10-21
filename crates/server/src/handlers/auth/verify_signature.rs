@@ -45,7 +45,9 @@ pub async fn verify_signature(
     let address =
         Address::from_str(&address).map_err(|_| Unauthorized("invalid address".to_string()))?;
 
-    let stored_message: String = redis.get(user_sign_message_key(&address)).await?;
+    let stored_message: Option<String> = redis.get(user_sign_message_key(&address)).await?;
+
+    let stored_message = stored_message.ok_or(Unauthorized("expired message".to_string()))?;
 
     if stored_message != message {
         return Err(Unauthorized("wrong message".to_string()));
