@@ -10,14 +10,81 @@ model User {
 }
 
 model Asset {
-  id            String   @id @db.VarChar
-  address       String   @unique @db.VarChar
-  realTimePrice Decimal  @map("real_time_price") @db.Decimal(90, 0)
-  price         Decimal  @db.Decimal(90, 0)
-  symbol        String   @db.VarChar(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3) @default(now())
-  timeline      DateTime @db.Timestamptz(3)
-  apy           Float    @db.Real
+  id              String   @id @db.VarChar
+  address         String   @unique @db.VarChar
+  real_time_price Decimal  @db.Decimal(90, 0)
+  price           Decimal  @db.Decimal(90, 0)
+  symbol          String   @db.VarChar(6)
+  updated_at      DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  timeline        DateTime @db.Timestamptz(3)
+  apy             Float    @db.Real
 
   @@map("asset")
+}
+
+model SupplyTxn {
+  hash       String   @id @db.VarChar
+  reserve    String   @db.VarChar
+  date       DateTime @db.Timestamptz(3)
+  amount     Decimal  @db.Decimal(90, 0)
+  sender     String   @db.VarChar
+  be_half_of String   @db.VarChar
+
+  @@map("supply_txn")
+}
+
+model WithdrawTxn {
+  hash    String   @id @db.VarChar
+  reserve String   @db.VarChar
+  date    DateTime @db.Timestamptz(3)
+  amount  Decimal  @db.Decimal(90, 0)
+  sender  String   @db.VarChar
+  to      String   @db.VarChar
+
+  @@map("withdraw_txn")
+}
+
+model RepayTxn {
+  hash    String   @id @db.VarChar
+  reserve String   @db.VarChar
+  date    DateTime @db.Timestamptz(3)
+  amount  Decimal  @db.Decimal(90, 0)
+  sender  String   @db.VarChar
+  repayer String   @db.VarChar
+
+  @@map("repay_txn")
+}
+
+model BorrowTxn {
+  hash        String           @id @db.VarChar
+  reserve     String           @db.VarChar
+  date        DateTime         @db.Timestamptz(3)
+  amount      Decimal          @db.Decimal(90, 0)
+  sender      String           @db.VarChar
+  be_half_of  String           @db.VarChar
+  borrow_rate Decimal          @db.Decimal(90, 0)
+  mode        InterestRateMode
+
+  @@map("borrow_txn")
+}
+
+model Event {
+  hash       String   @id @db.VarChar
+  date       DateTime @db.Timestamptz(3)
+  event_data Json     @db.Json
+
+  @@map("event")
+}
+
+model setting {
+  key String @id @db.VarChar
+  val String @db.VarChar
+}
+
+enum InterestRateMode {
+  none
+  stable
+  variable
+
+  @@map("interest_rate_mode")
 }

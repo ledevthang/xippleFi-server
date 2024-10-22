@@ -3606,6 +3606,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "scanner"
+version = "0.1.0"
+dependencies = [
+ "alloy",
+ "contracts",
+ "database",
+ "dotenv",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "schannel"
 version = "0.1.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"

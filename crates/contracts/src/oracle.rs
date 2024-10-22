@@ -58,7 +58,7 @@ impl OracleContract {
         let next_round = event_data.round as u64 + 1;
         let now_in_seconds = chrono::Utc::now().timestamp() as u64;
 
-        let lastest_epoch = epoch_and_round_to_hex(now_in_seconds, next_round);
+        let latest_epoch = epoch_and_round_to_hex(now_in_seconds, next_round);
 
         let param_value = DynSolValue::Tuple(vec![
             DynSolValue::Uint(U256::from(now_in_seconds), 32),
@@ -66,7 +66,7 @@ impl OracleContract {
         ])
         .abi_encode();
 
-        let epoch_and_round = FixedBytes::from_hex(lastest_epoch.as_bytes()).unwrap();
+        let epoch_and_round = FixedBytes::from_hex(latest_epoch.as_bytes()).unwrap();
 
         let report = Bytes::from(param_value);
 
