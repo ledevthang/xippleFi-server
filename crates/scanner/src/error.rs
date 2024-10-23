@@ -4,8 +4,9 @@ use alloy::transports::{RpcError, TransportErrorKind};
 
 #[derive(thiserror::Error, Debug)]
 pub enum ScannerError {
-    // #[error("{0}")]
-    // Custom(String),
+    #[error("{0}")]
+    Custom(String),
+
     #[error(transparent)]
     RpcTransportError(#[from] RpcError<TransportErrorKind>),
 

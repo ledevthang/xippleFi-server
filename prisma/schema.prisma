@@ -72,6 +72,7 @@ model Event {
   hash       String   @id @db.VarChar
   date       DateTime @db.Timestamptz(3)
   event_data Json     @db.Json
+  name       EventName  
 
   @@map("event")
 }
@@ -87,4 +88,13 @@ enum InterestRateMode {
   variable
 
   @@map("interest_rate_mode")
+}
+
+enum EventName {
+    suppy
+    borrow
+    repay
+    withdraw
+
+    @@map("event_name")
 }

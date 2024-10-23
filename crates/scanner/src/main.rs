@@ -1,17 +1,24 @@
 mod error;
-
+mod event_handler;
 use alloy::{
     eips::BlockNumberOrTag,
-    primitives::address,
     providers::{Provider, ProviderBuilder, RootProvider},
-    rpc::types::{Filter, FilterBlockOption},
+    rpc::types::{BlockTransactionsKind, Filter, FilterBlockOption},
+    sol_types::SolEventInterface,
     transports::http::{reqwest::Url, Client, Http},
 };
+use contracts::xipple_fi::VirtualXippleFi::VirtualXippleFiEvents;
 use database::{
-    repositories::setting::{self, Config},
-    sea_orm::{ConnectOptions, Database, DatabaseConnection},
+    repositories::{
+        event,
+        setting::{self, Config},
+    },
+    sea_orm::{sqlx::types::chrono::DateTime, ConnectOptions, Database, DatabaseConnection},
 };
 use error::ScannerError;
+use event_handler::{handle_borrow, handle_repay, handle_supply, handle_withdraw};
+use futures_util::future::try_join_all;
+use shared::constants::XIPPLE_FI_CONTRACT_ADDRESS;
 use std::{str::FromStr, time::Duration};
 use tracing_subscriber::EnvFilter;
 
@@ -56,7 +63,7 @@ async fn main() {
     };
 
     let mut filter = Filter::new()
-        .address(address!("95E0e5f14Edd1a28ada89b0F686eAaF81Da91c37"))
+        .address(XIPPLE_FI_CONTRACT_ADDRESS)
         .from_block(latest_scanned_block)
         .to_block(latest_scanned_block + DISTANCE);
 
@@ -72,15 +79,15 @@ async fn main() {
             .await
             .expect("failed to set latest_scanned_block");
 
-        tracing::info!("scanned to {}", latest_scanned_block);
+        tracing::info!("scanned to block {}", latest_scanned_block);
 
-        tokio::time::sleep(Duration::from_secs(20)).await;
+        tokio::time::sleep(Duration::from_secs(3)).await;
     }
 }
 
 async fn scan(
     provider: &RootProvider<Http<Client>>,
-    _db: &DatabaseConnection,
+    db: &DatabaseConnection,
     filter: &mut Filter,
 ) -> Result<BlockNumber, ScannerError> {
     let mut to_block = filter.get_to_block().unwrap();
@@ -95,11 +102,64 @@ async fn scan(
         to_block = latest_block;
     };
 
-    let logs = provider.get_logs(&filter).await?;
+    let tasks =
+        provider
+            .get_logs(filter)
+            .await?
+            .into_iter()
+            .map(|log| async move {
+                let hash = log.transaction_hash.map(|hash| hash.to_string()).ok_or(
+                    ScannerError::Custom("not found transaction hash from log".to_string()),
+                )?;
 
-    dbg!(logs.len());
+                if event::find_by_hash(db, &hash).await?.is_some() {
+                    return Ok(());
+                }
 
-    for _log in logs {}
+                let Ok(event) = VirtualXippleFiEvents::decode_log(&log.inner, true) else {
+                    return Ok(());
+                };
+
+                let date = if let Some(block_timestamp) = log.block_timestamp {
+                    DateTime::from_timestamp(block_timestamp as i64, 0).ok_or(
+                        ScannerError::Custom("can not parse block timestamp".to_string()),
+                    )?
+                } else {
+                    let block_hash = log.block_hash.ok_or(ScannerError::Custom(
+                        "not found block hash from log".to_string(),
+                    ))?;
+
+                    let block = provider
+                        .get_block_by_hash(block_hash, BlockTransactionsKind::Full)
+                        .await?
+                        .ok_or(ScannerError::Custom(
+                            "not found block from block hash".to_string(),
+                        ))?;
+
+                    DateTime::from_timestamp(block.header.timestamp as i64, 0).ok_or(
+                        ScannerError::Custom("can not parse block timestamp".to_string()),
+                    )?
+                };
+
+                match event.data {
+                    VirtualXippleFiEvents::Borrow(payload) => {
+                        handle_borrow(db, hash, date, payload).await?
+                    }
+                    VirtualXippleFiEvents::Repay(payload) => {
+                        handle_repay(db, hash, date, payload).await?
+                    }
+                    VirtualXippleFiEvents::Supply(payload) => {
+                        handle_supply(db, hash, date, payload).await?
+                    }
+                    VirtualXippleFiEvents::Withdraw(payload) => {
+                        handle_withdraw(db, hash, date, payload).await?
+                    }
+                }
+
+                Ok::<(), ScannerError>(())
+            });
+
+    try_join_all(tasks).await?;
 
     let next = to_block + 1;
 

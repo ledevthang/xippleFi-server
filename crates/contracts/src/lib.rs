@@ -1,6 +1,6 @@
-pub mod defi;
 pub mod error;
 pub mod oracle;
+pub mod xipple_fi;
 
 use alloy::{
     network::{AnyNetwork, EthereumWallet},
@@ -19,12 +19,6 @@ sol!(
     #[sol(rpc)]
     ORACLE,
     "src/abis/oracle.abi.json"
-);
-
-sol!(
-    #[sol(rpc)]
-    DEFI,
-    "src/abis/defi.abi.json"
 );
 
 pub type OracaleProvider = FillProvider<

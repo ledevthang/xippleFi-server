@@ -7,4 +7,5 @@ edition = "2021"
 thiserror = { workspace = true }
 alloy = { workspace = true }
 chrono = { workspace = true }
+serde = { workspace = true }
 shared = { path = "../shared" }

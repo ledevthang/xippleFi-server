@@ -1,11 +1,11 @@
 use sea_orm::{
     prelude::{DateTimeWithTimeZone, Decimal},
-    DatabaseConnection, DbErr, EntityTrait, Set,
+    DatabaseConnection, DbErr, EntityTrait, Set, TransactionTrait,
 };
 
 use crate::{
-    entities::{borrow_txn, repay_txn, supply_txn, withdraw_txn},
-    enums::InterestRateMode,
+    entities::{borrow_txn, event, repay_txn, supply_txn, withdraw_txn},
+    enums::{EventName, InterestRateMode},
 };
 
 pub struct CreateTxnParams {
@@ -14,6 +14,7 @@ pub struct CreateTxnParams {
     pub date: DateTimeWithTimeZone,
     pub amount: Decimal,
     pub reserve: String,
+    pub full_payload: serde_json::Value,
 }
 
 pub async fn create_borrow_txn(
@@ -23,8 +24,10 @@ pub async fn create_borrow_txn(
     be_half_of: String,
     borrow_rate: Decimal,
 ) -> Result<(), DbErr> {
-    let model = borrow_txn::ActiveModel {
-        hash: Set(params.hash),
+    let tx = db.begin().await?;
+
+    let txn = borrow_txn::ActiveModel {
+        hash: Set(params.hash.clone()),
         amount: Set(params.amount),
         date: Set(params.date),
         reserve: Set(params.reserve),
@@ -34,7 +37,17 @@ pub async fn create_borrow_txn(
         mode: Set(mode),
     };
 
-    borrow_txn::Entity::insert(model).exec(db).await?;
+    let event = event::ActiveModel {
+        hash: Set(params.hash),
+        date: Set(params.date),
+        event_data: Set(params.full_payload),
+        name: Set(EventName::Borrow),
+    };
+
+    event::Entity::insert(event).exec(&tx).await?;
+    borrow_txn::Entity::insert(txn).exec(&tx).await?;
+
+    tx.commit().await?;
 
     Ok(())
 }
@@ -44,8 +57,10 @@ pub async fn create_repay_txn(
     params: CreateTxnParams,
     repayer: String,
 ) -> Result<(), DbErr> {
+    let tx = db.begin().await?;
+
     let model = repay_txn::ActiveModel {
-        hash: Set(params.hash),
+        hash: Set(params.hash.clone()),
         amount: Set(params.amount),
         date: Set(params.date),
         reserve: Set(params.reserve),
@@ -53,7 +68,17 @@ pub async fn create_repay_txn(
         repayer: Set(repayer),
     };
 
-    repay_txn::Entity::insert(model).exec(db).await?;
+    let event = event::ActiveModel {
+        hash: Set(params.hash),
+        date: Set(params.date),
+        event_data: Set(params.full_payload),
+        name: Set(EventName::Repay),
+    };
+
+    event::Entity::insert(event).exec(&tx).await?;
+    repay_txn::Entity::insert(model).exec(&tx).await?;
+
+    tx.commit().await?;
 
     Ok(())
 }
@@ -63,8 +88,10 @@ pub async fn create_withdraw_txn(
     params: CreateTxnParams,
     to: String,
 ) -> Result<(), DbErr> {
+    let tx = db.begin().await?;
+
     let model = withdraw_txn::ActiveModel {
-        hash: Set(params.hash),
+        hash: Set(params.hash.clone()),
         amount: Set(params.amount),
         date: Set(params.date),
         reserve: Set(params.reserve),
@@ -72,7 +99,17 @@ pub async fn create_withdraw_txn(
         to: Set(to),
     };
 
-    withdraw_txn::Entity::insert(model).exec(db).await?;
+    let event = event::ActiveModel {
+        hash: Set(params.hash),
+        date: Set(params.date),
+        event_data: Set(params.full_payload),
+        name: Set(EventName::Withdraw),
+    };
+
+    event::Entity::insert(event).exec(&tx).await?;
+    withdraw_txn::Entity::insert(model).exec(&tx).await?;
+
+    tx.commit().await?;
 
     Ok(())
 }
@@ -82,8 +119,10 @@ pub async fn create_supply_txn(
     params: CreateTxnParams,
     be_half_of: String,
 ) -> Result<(), DbErr> {
+    let tx = db.begin().await?;
+
     let model = supply_txn::ActiveModel {
-        hash: Set(params.hash),
+        hash: Set(params.hash.clone()),
         amount: Set(params.amount),
         date: Set(params.date),
         reserve: Set(params.reserve),
@@ -91,7 +130,17 @@ pub async fn create_supply_txn(
         be_half_of: Set(be_half_of),
     };
 
-    supply_txn::Entity::insert(model).exec(db).await?;
+    let event = event::ActiveModel {
+        hash: Set(params.hash),
+        date: Set(params.date),
+        event_data: Set(params.full_payload),
+        name: Set(EventName::Suppy),
+    };
+
+    event::Entity::insert(event).exec(&tx).await?;
+    supply_txn::Entity::insert(model).exec(&tx).await?;
+
+    tx.commit().await?;
 
     Ok(())
 }

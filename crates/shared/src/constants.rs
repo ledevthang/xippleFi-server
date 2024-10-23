@@ -135,3 +135,6 @@ impl Asset {
         PrivateKeySigner::from_str(&owner_pk).expect("invalid private key")
     }
 }
+
+pub const XIPPLE_FI_CONTRACT_ADDRESS: Address =
+    address!("F33d5ce7B4F6BeBc8edDb07192F279A21F0697b1");
