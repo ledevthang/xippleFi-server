@@ -43,13 +43,14 @@ async fn main() {
 
     let key = Config::LatestScannedBlock;
 
-    let config = setting::find(&db, &key)
-        .await
-        .expect("failed to find latest_scanned_block")
-        .expect("missing latest_scanned_block setting");
+    let mut latest_scanned = {
+        let config = setting::find(&db, &key)
+            .await
+            .expect("failed to find latest_scanned_block")
+            .expect("missing latest_scanned_block setting");
 
-    let latest_scanned =
-        u64::from_str(&config).expect("invalid latest_scanned_block, u64 expected");
+        u64::from_str(&config).expect("invalid latest_scanned_block, u64 expected")
+    };
 
     let mut filter = Filter::new()
         .address(address!("95E0e5f14Edd1a28ada89b0F686eAaF81Da91c37"))
@@ -64,6 +65,8 @@ async fn main() {
                     tracing::error!("scan error {:#?}", error);
                     latest_scanned
                 });
+
+        latest_scanned = latest_scanned_block;
 
         setting::set(&db, &key, latest_scanned_block.to_string())
             .await
