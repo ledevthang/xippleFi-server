@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use alloy::primitives::U256;
-use contracts::xipple_fi::VirtualXippleFi::{Borrow, InterestRateMode, Repay, Supply, Withdraw};
+use contracts::xipple_fi::XippleFi::{Borrow, InterestRateMode, Repay, Supply, Withdraw};
 use database::{
     repositories::txn::{self, CreateTxnParams},
     sea_orm::{

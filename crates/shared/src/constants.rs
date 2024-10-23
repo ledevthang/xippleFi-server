@@ -65,7 +65,7 @@ pub const ASSETS: [AssetConfig; 6] = [
         heartbeat: 86400, //24h
         threshhold: 0.5,
         apy: 0.5,
-        address: address!("21fa8610CBD3a1a45bCB1DbE933052EBF9e3dd52"),
+        address: address!("4c95a9fF405a7eb8A8B5526021178fC6F8f1e1ab"),
         oracle_contract: address!("50E67748dBdb608bE5b85d97b0Da72313f7Faf4f"),
     },
     AssetConfig {
@@ -137,4 +137,4 @@ impl Asset {
 }
 
 pub const XIPPLE_FI_CONTRACT_ADDRESS: Address =
-    address!("F33d5ce7B4F6BeBc8edDb07192F279A21F0697b1");
+    address!("9dAea0EbD7b230ca90EFBca9522b8a02DE78D643");

@@ -5,7 +5,7 @@ sol! {
     #[sol(rpc)]
     #[derive(Debug)]
     #[derive(Serialize)]
-    contract VirtualXippleFi {
+    interface XippleFi {
         enum InterestRateMode {NONE, STABLE, VARIABLE}
 
         event Borrow(

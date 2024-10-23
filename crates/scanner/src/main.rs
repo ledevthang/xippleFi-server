@@ -7,7 +7,7 @@ use alloy::{
     sol_types::SolEventInterface,
     transports::http::{reqwest::Url, Client, Http},
 };
-use contracts::xipple_fi::VirtualXippleFi::VirtualXippleFiEvents;
+use contracts::xipple_fi::XippleFi::XippleFiEvents;
 use database::{
     repositories::{
         event,
@@ -102,62 +102,58 @@ async fn scan(
         to_block = latest_block;
     };
 
-    let tasks =
-        provider
-            .get_logs(filter)
-            .await?
-            .into_iter()
-            .map(|log| async move {
-                let hash = log.transaction_hash.map(|hash| hash.to_string()).ok_or(
-                    ScannerError::Custom("not found transaction hash from log".to_string()),
-                )?;
+    let tasks = provider
+        .get_logs(filter)
+        .await?
+        .into_iter()
+        .map(|log| async move {
+            let Ok(event) = XippleFiEvents::decode_log(&log.inner, true) else {
+                return Ok(());
+            };
 
-                if event::find_by_hash(db, &hash).await?.is_some() {
-                    return Ok(());
-                }
-
-                let Ok(event) = VirtualXippleFiEvents::decode_log(&log.inner, true) else {
-                    return Ok(());
-                };
-
-                let date = if let Some(block_timestamp) = log.block_timestamp {
-                    DateTime::from_timestamp(block_timestamp as i64, 0).ok_or(
-                        ScannerError::Custom("can not parse block timestamp".to_string()),
-                    )?
-                } else {
-                    let block_hash = log.block_hash.ok_or(ScannerError::Custom(
-                        "not found block hash from log".to_string(),
+            let hash =
+                log.transaction_hash
+                    .map(|hash| hash.to_string())
+                    .ok_or(ScannerError::Custom(
+                        "not found transaction hash from log".to_string(),
                     ))?;
 
-                    let block = provider
-                        .get_block_by_hash(block_hash, BlockTransactionsKind::Full)
-                        .await?
-                        .ok_or(ScannerError::Custom(
-                            "not found block from block hash".to_string(),
-                        ))?;
+            if event::find_by_hash(db, &hash).await?.is_some() {
+                return Ok(());
+            }
 
-                    DateTime::from_timestamp(block.header.timestamp as i64, 0).ok_or(
-                        ScannerError::Custom("can not parse block timestamp".to_string()),
-                    )?
-                };
+            let date = if let Some(block_timestamp) = log.block_timestamp {
+                DateTime::from_timestamp(block_timestamp as i64, 0).ok_or(ScannerError::Custom(
+                    "can not parse block timestamp".to_string(),
+                ))?
+            } else {
+                let block_hash = log.block_hash.ok_or(ScannerError::Custom(
+                    "not found block hash from log".to_string(),
+                ))?;
 
-                match event.data {
-                    VirtualXippleFiEvents::Borrow(payload) => {
-                        handle_borrow(db, hash, date, payload).await?
-                    }
-                    VirtualXippleFiEvents::Repay(payload) => {
-                        handle_repay(db, hash, date, payload).await?
-                    }
-                    VirtualXippleFiEvents::Supply(payload) => {
-                        handle_supply(db, hash, date, payload).await?
-                    }
-                    VirtualXippleFiEvents::Withdraw(payload) => {
-                        handle_withdraw(db, hash, date, payload).await?
-                    }
+                let block = provider
+                    .get_block_by_hash(block_hash, BlockTransactionsKind::Full)
+                    .await?
+                    .ok_or(ScannerError::Custom(
+                        "not found block from block hash".to_string(),
+                    ))?;
+
+                DateTime::from_timestamp(block.header.timestamp as i64, 0).ok_or(
+                    ScannerError::Custom("can not parse block timestamp".to_string()),
+                )?
+            };
+
+            match event.data {
+                XippleFiEvents::Borrow(payload) => handle_borrow(db, hash, date, payload).await?,
+                XippleFiEvents::Repay(payload) => handle_repay(db, hash, date, payload).await?,
+                XippleFiEvents::Supply(payload) => handle_supply(db, hash, date, payload).await?,
+                XippleFiEvents::Withdraw(payload) => {
+                    handle_withdraw(db, hash, date, payload).await?
                 }
+            }
 
-                Ok::<(), ScannerError>(())
-            });
+            Ok::<(), ScannerError>(())
+        });
 
     try_join_all(tasks).await?;
 
