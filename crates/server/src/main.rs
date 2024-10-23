@@ -26,12 +26,14 @@ async fn main() {
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
-    let db_url = std::env::var("DATABASE_URL").expect("missing DATABASE_URL");
-    let redis_url = "redis://127.0.0.1/";
+    let state = {
+        let db_url = std::env::var("DATABASE_URL").expect("missing DATABASE_URL");
+        let redis_url = "redis://127.0.0.1/";
 
-    let state = AppState::new(&db_url, redis_url)
-        .await
-        .expect("fail to init state");
+        AppState::new(&db_url, redis_url)
+            .await
+            .expect("fail to init state")
+    };
 
     let assets_router = Router::new()
         .route("/assets/:asset_id", get(get_asset))

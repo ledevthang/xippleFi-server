@@ -29,21 +29,24 @@ async fn main() {
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
-    let db_url = std::env::var("DATABASE_URL").expect("missing DATABASE_URL");
-    let mut opt = ConnectOptions::new(db_url);
-    opt.sqlx_logging(false);
+    let db = {
+        let db_url = std::env::var("DATABASE_URL").expect("missing DATABASE_URL");
+        let mut opt = ConnectOptions::new(db_url);
+        opt.sqlx_logging(false);
 
-    let db = Database::connect(opt)
-        .await
-        .expect("can not connect to database");
+        Database::connect(opt)
+            .await
+            .expect("can not connect to database")
+    };
 
-    let rpc_url = Url::from_str("https://rpc-evm-sidechain.xrpl.org").expect("invalid rpc url");
-
-    let provider = ProviderBuilder::new().on_http(rpc_url);
+    let provider = {
+        let rpc_url = Url::from_str("https://rpc-evm-sidechain.xrpl.org").expect("invalid rpc url");
+        ProviderBuilder::new().on_http(rpc_url)
+    };
 
     let key = Config::LatestScannedBlock;
 
-    let mut latest_scanned = {
+    let mut latest_scanned_block = {
         let config = setting::find(&db, &key)
             .await
             .expect("failed to find latest_scanned_block")
@@ -54,19 +57,16 @@ async fn main() {
 
     let mut filter = Filter::new()
         .address(address!("95E0e5f14Edd1a28ada89b0F686eAaF81Da91c37"))
-        .from_block(latest_scanned)
-        .to_block(latest_scanned + DISTANCE);
+        .from_block(latest_scanned_block)
+        .to_block(latest_scanned_block + DISTANCE);
 
     loop {
-        let latest_scanned_block =
-            scan(&provider, &db, &mut filter)
-                .await
-                .unwrap_or_else(|error| {
-                    tracing::error!("scan error {:#?}", error);
-                    latest_scanned
-                });
-
-        latest_scanned = latest_scanned_block;
+        latest_scanned_block = scan(&provider, &db, &mut filter)
+            .await
+            .unwrap_or_else(|error| {
+                tracing::error!("scan error {:#?}", error);
+                latest_scanned_block
+            });
 
         setting::set(&db, &key, latest_scanned_block.to_string())
             .await

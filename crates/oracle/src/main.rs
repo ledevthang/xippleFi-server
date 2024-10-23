@@ -18,8 +18,6 @@ pub type PriceStr = String;
 async fn main() {
     dotenv::dotenv().expect("failed to load env");
 
-    let db_url = std::env::var("DATABASE_URL").expect("missing DATABASE_URL");
-
     let filter = EnvFilter::builder()
         .from_env()
         .unwrap()
@@ -27,12 +25,15 @@ async fn main() {
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
-    let mut opt = ConnectOptions::new(db_url);
-    opt.sqlx_logging(false);
+    let db = {
+        let db_url = std::env::var("DATABASE_URL").expect("missing DATABASE_URL");
+        let mut opt = ConnectOptions::new(db_url);
+        opt.sqlx_logging(false);
 
-    let db = Database::connect(opt)
-        .await
-        .expect("can not connect to database");
+        Database::connect(opt)
+            .await
+            .expect("can not connect to database")
+    };
 
     loop {
         tracing::info!("🦀 oracle is running");
